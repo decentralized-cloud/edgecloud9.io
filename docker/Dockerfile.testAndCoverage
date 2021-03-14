@@ -1,0 +1,8 @@
+# => Build container
+FROM decentralizedcloud/edgecloud9io-base:latest as react-build
+LABEL maintainer="morteza.alizadeh@gmail.com"
+
+ADD . /src
+WORKDIR /src
+RUN yarn install
+CMD ["yarn", "run", "test:ci"]

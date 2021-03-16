@@ -1,0 +1,83 @@
+trigger:
+  tags:
+    include:
+      - v*
+  branches:
+    include:
+      - main
+      - release/*
+      - feature/*
+      - hotfix/*
+  paths:
+    exclude:
+      - README.md
+
+variables:
+  - template: variables.yml
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: decentralized-cloud/templates
+      endpoint: decentralized-cloud
+
+name: $(GitVersion.SemVer)
+
+stages:
+  - stage: Build
+    jobs:
+      - template: build/build-test-publish.yml@templates
+        parameters:
+          version: ${{ variables.artifactVersion }}
+          vmImage: ${{ variables.linuxVmImage }}
+          shouldBuildContract: false
+          shouldPublishServiceDockerImage: true
+          shouldTestPublishResult: true
+          shouldPublishHelmChartAsArtifact: false
+          shouldPublishHelmChart: false
+          shouldPublishFirebaseAsArtifact: true
+          dockerContainerRegistry: ${{ variables.dockerContainerRegistry }}
+          dockerRepositoryName: ${{ variables.dockerRepositoryName }}
+          dockerBuildFilePath: ${{ variables.dockerBuildFilePath }}
+          dockerBuildContext: ${{ variables.dockerBuildContext }}
+          testDockerComposeFilePath: ${{ variables.testDockerComposeFilePath }}
+          coverallsServiceName: ${{ variables.coverallsServiceName }}
+          coverallsRepoToken: ${{ variables.coverallsRepoToken }}
+          firbaseArtifactName: ${{ variables.firbaseArtifactName }}
+
+  - stage: Dev
+    dependsOn: [Build]
+    jobs:
+      - template: release/deploy-hosting-firebase.yml@templates
+        parameters:
+          environment: Dev
+          vmImage: ${{ variables.linuxVmImage }}
+          artifactName: ${{ variables.firbaseArtifactName }}
+          token:  ${{ variables.firebaseToken }}
+          projectId:  ${{ variables.firebaseProjectId }}
+          resourceName:  ${{ variables.devFirbaseResourceName }}
+
+  - stage: Test
+    dependsOn: [Dev]
+    jobs:
+      - template: release/deploy-hosting-firebase.yml@templates
+        parameters:
+          environment: Test
+          vmImage: ${{ variables.linuxVmImage }}
+          artifactName: ${{ variables.firbaseArtifactName }}
+          token:  ${{ variables.firebaseToken }}
+          projectId:  ${{ variables.firebaseProjectId }}
+          resourceName:  ${{ variables.testFirbaseResourceName }}
+
+  - stage: Prod
+    dependsOn: [Test]
+    jobs:
+      - template: release/deploy-hosting-firebase.yml@templates
+        parameters:
+          environment: Prod
+          vmImage: ${{ variables.linuxVmImage }}
+          artifactName: ${{ variables.firbaseArtifactName }}
+          token:  ${{ variables.firebaseToken }}
+          projectId:  ${{ variables.firebaseProjectId }}
+          resourceName:  ${{ variables.prodFirbaseResourceName }}

@@ -1,0 +1,81 @@
+{
+  "name": "edge-cloud-nine-public",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "./scripts/env.sh && cp env-config.js ./public/ && react-scripts start",
+    "start:windows": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command scripts/env.ps1;copy env-config.js .\\public\\ ; react-scripts start",
+    "build": "sh -ac '. ./.env; react-scripts build'",
+    "test": "react-scripts test --coverage",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
+    "test:ci": "CI=true react-scripts test --coverage --coverageReporters=text-lcov | coveralls",
+    "eject": "react-scripts eject",
+    "lint": "eslint src",
+    "fixlint": "eslint --fix --ext .js --ext .jsx --ext .ts --ext .tsx src",
+    "pre-commit": "lint-staged",
+    "format": "prettier --write --single-quote true --trailing-comma all --print-width 150 ./src && npm run fixlint"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.5.0",
+    "@testing-library/user-event": "^12.8.3",
+    "@types/node": "^14.14.35",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.2",
+    "@types/react-redux": "^7.1.16",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-redux": "^7.2.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3",
+    "styled-components": "^5.2.1",
+    "typescript": "^4.2.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
+    "@types/jest": "^26.0.20",
+    "@types/react-router-dom": "^5.1.7",
+    "@types/styled-components": "^5.1.9",
+    "coveralls": "^3.1.0",
+    "husky": "^4.3.8",
+    "lint-staged": "^10.5.4",
+    "mocha-lcov-reporter": "^1.3.0",
+    "prettier": "^2.2.1"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css}": [
+      "prettier --write --single-quote true --trailing-comma all --print-width 150",
+      "npm run fixlint"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!<rootDir>/node_modules/",
+      "!<rootDir>/path/to/dir/"
+    ],
+    "coverageReporters": [
+      "text"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}

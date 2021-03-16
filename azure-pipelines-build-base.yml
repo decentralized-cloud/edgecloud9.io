@@ -2,7 +2,6 @@ trigger:
   paths:
     include:
       - package.json
-      - package.json
       - azure-pipelines-build-base.yml
 
 variables:
